@@ -11,6 +11,7 @@ export interface ThemeSchema {
   primaryFontFamily?: FontSchema;
   fontSize?: string;
   fontWeight?: string;
+  languageCode: string;
 }
 
 export interface FontSchema {
