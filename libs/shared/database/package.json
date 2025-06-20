@@ -1,9 +1,11 @@
 {
-  "name": "@tendo-app/shared-dto",
+  "name": "@tendo-app/shared-database",
   "version": "0.0.1",
   "private": true,
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",
-  "dependencies": {}
+  "dependencies": {
+    "@tendo-app/shared-dto": "workspace:*"
+  }
 }

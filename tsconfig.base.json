@@ -16,7 +16,9 @@
     "baseUrl": ".",
     "paths": {
       "@tendo-app/auth": ["libs/auth/src/index.ts"],
-      "@tendo-app/shared/dto": ["libs/shared/dto/src/index.ts"]
+      "@tendo-app/lambda-utils": ["libs/lambda-utils/src/index.ts"],
+      "@tendo-app/shared-database": ["libs/shared/database/src/index.ts"],
+      "@tendo-app/shared-dto": ["libs/shared/dto/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,0 +1,138 @@
+{
+  "/Users/danielkim/projects/tendo-app/serverless.yml": {
+    "versionFramework": "4.17.1",
+    "servicePath": "/Users/danielkim/projects/tendo-app/serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "api-gateway",
+      "useDotenv": true,
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "us-east-1",
+        "stage": "prod",
+        "timeout": 30,
+        "memorySize": 512,
+        "environment": {
+          "NODE_ENV": "prod",
+          "CORS_ORIGIN": "https://drh3lhlsbyvln.cloudfront.net",
+          "DB_HOST": "database-2.cmn6kome8fai.us-east-1.rds.amazonaws.com",
+          "DB_PORT": "5432",
+          "DB_USERNAME": "postgres",
+          "DB_PASSWORD": "<REDACTED>",
+          "DB_NAME": "tendoapp"
+        },
+        "versionFunctions": true
+      },
+      "custom": {
+        "corsOrigins": {
+          "dev": "http://localhost:3000",
+          "prod": "https://drh3lhlsbyvln.cloudfront.net"
+        },
+        "esbuild": {
+          "bundle": true,
+          "minify": false,
+          "sourcemap": true,
+          "target": "node18",
+          "platform": "node",
+          "external": [
+            "aws-sdk",
+            "pg-native"
+          ]
+        },
+        "serverless-offline": {
+          "httpPort": 3000,
+          "noPrependStageInUrl": true,
+          "stage": "prod",
+          "prefix": "",
+          "corsAllowOrigin": "*",
+          "corsAllowHeaders": "accept,content-type,x-api-key,authorization"
+        }
+      },
+      "functions": {
+        "test": {
+          "handler": "apps/api-gateway/src/handlers/test.main",
+          "events": [
+            {
+              "http": {
+                "path": "test",
+                "method": "get",
+                "cors": {
+                  "origin": "https://drh3lhlsbyvln.cloudfront.net",
+                  "allowCredentials": "<REDACTED>"
+                }
+              }
+            }
+          ],
+          "name": "api-gateway-prod-test"
+        }
+      },
+      "plugins": [
+        "serverless-offline"
+      ]
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs18.x",
+      "region": "us-east-1",
+      "stage": "prod",
+      "timeout": 30,
+      "memorySize": 512,
+      "environment": {
+        "NODE_ENV": "prod",
+        "CORS_ORIGIN": "https://drh3lhlsbyvln.cloudfront.net",
+        "DB_HOST": "database-2.cmn6kome8fai.us-east-1.rds.amazonaws.com",
+        "DB_PORT": "5432",
+        "DB_USERNAME": "postgres",
+        "DB_PASSWORD": "<REDACTED>",
+        "DB_NAME": "tendoapp"
+      },
+      "versionFunctions": true
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "service: api-gateway\n\nuseDotenv: true\n\nprovider:\n  name: aws\n  runtime: nodejs18.x\n  region: us-east-1\n  stage: ${opt:stage, 'dev'}\n  timeout: 30\n  memorySize: 512\n\n  environment:\n    NODE_ENV: ${self:provider.stage}\n    CORS_ORIGIN: ${self:custom.corsOrigins.${self:provider.stage}}\n    DB_HOST: ${env:DB_HOST}\n    DB_PORT: ${env:DB_PORT, '5432'}\n    DB_USERNAME: ${env:DB_USERNAME}\n    DB_PASSWORD: ${env:DB_PASSWORD}\n    DB_NAME: ${env:DB_NAME}\n\ncustom:\n  corsOrigins:\n    dev: 'http://localhost:3000'\n    prod: 'https://drh3lhlsbyvln.cloudfront.net'\n\n  esbuild:\n    bundle: true\n    minify: false\n    sourcemap: true\n    target: 'node18'\n    platform: 'node'\n    external: ['aws-sdk', 'pg-native']\n\n  serverless-offline:\n    httpPort: 3000\n    noPrependStageInUrl: true\n    stage: ${self:provider.stage}\n    prefix: ''\n    corsAllowOrigin: '*'\n    corsAllowHeaders: 'accept,content-type,x-api-key,authorization'\n\nfunctions:\n  test:\n    handler: apps/api-gateway/src/handlers/test.main\n    events:\n      - http:\n          path: test\n          method: get\n          cors:\n            origin: ${self:custom.corsOrigins.${self:provider.stage}}\n            allowCredentials: true\n\nplugins:\n  - serverless-offline\n",
+    "command": [
+      "info"
+    ],
+    "options": {
+      "stage": "prod"
+    },
+    "orgId": "0f7310a0-18de-4b44-bb0e-a24de6537eab",
+    "orgName": "dkpersonal",
+    "userId": "BX00qWW2wfDZrch314",
+    "userName": "dkpersonal",
+    "serviceProviderAwsAccountId": "197315783565",
+    "serviceProviderAwsCfStackName": "api-gateway-prod",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:197315783565:stack/api-gateway-prod/a7ac62d0-4ccb-11f0-97c4-1257b8a5ed27",
+    "serviceProviderAwsCfStackCreated": "2025-06-19T05:10:02.478Z",
+    "serviceProviderAwsCfStackUpdated": "2025-06-20T21:24:11.156Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "TestLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:us-east-1:197315783565:function:api-gateway-prod-test:15",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-api-gateway-prod-TestLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServiceEndpoint",
+        "OutputValue": "https://vwnoutyxti.execute-api.us-east-1.amazonaws.com/prod",
+        "Description": "URL of the service endpoint",
+        "ExportName": "sls-api-gateway-prod-ServiceEndpoint"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-us-east-1-770e2403-60ba",
+        "ExportName": "sls-api-gateway-prod-ServerlessDeploymentBucketName"
+      }
+    ]
+  }
+}

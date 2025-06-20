@@ -1,0 +1,55 @@
+service: api-gateway
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  timeout: 30
+  memorySize: 512
+
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    CORS_ORIGIN: ${self:custom.corsOrigins.${self:provider.stage}}
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT, '5432'}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_NAME: ${env:DB_NAME}
+
+custom:
+  corsOrigins:
+    dev: 'http://localhost:3000'
+    prod: 'https://drh3lhlsbyvln.cloudfront.net'
+
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    target: 'node18'
+    platform: 'node'
+    external: ['aws-sdk', 'pg-native']
+
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+    stage: ${self:provider.stage}
+    prefix: ''
+    corsAllowOrigin: '*'
+    corsAllowHeaders: 'accept,content-type,x-api-key,authorization'
+
+functions:
+  test:
+    handler: apps/api-gateway/src/handlers/test.main
+    events:
+      - http:
+          path: test
+          method: get
+          cors:
+            origin: ${self:custom.corsOrigins.${self:provider.stage}}
+            allowCredentials: true
+
+plugins:
+  - serverless-offline

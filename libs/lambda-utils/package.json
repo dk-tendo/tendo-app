@@ -1,9 +1,11 @@
 {
-  "name": "@tendo-app/shared-dto",
+  "name": "@tendo-app/lambda-utils",
   "version": "0.0.1",
   "private": true,
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",
-  "dependencies": {}
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.141"
+  }
 }

@@ -59,6 +59,14 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx serverless deploy",
+        "cwd": "apps/api-gateway"
+      }
     }
-  }
+  },
+  "implicitDependencies": ["database", "lambda-utils", "shared-dto"]
 }
