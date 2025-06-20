@@ -2,6 +2,10 @@
   "name": "@tendo-app/source",
   "version": "0.0.0",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.17.0",
+    "npm": ">=10.8.2"
+  },
   "scripts": {
     "dev:db": "docker-compose up -d postgres",
     "dev:api": "export $(grep -v '^#' .env | xargs) && serverless offline --stage dev",
