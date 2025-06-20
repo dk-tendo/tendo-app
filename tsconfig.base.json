@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@tendo-app/auth": ["libs/auth/src/index.ts"]
+      "@tendo-app/auth": ["libs/auth/src/index.ts"],
+      "@tendo-app/shared/dto": ["libs/shared/dto/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
