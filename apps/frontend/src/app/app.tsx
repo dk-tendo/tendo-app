@@ -1,49 +1,36 @@
-import NxWelcome from './nx-welcome';
-
-import { Route, Routes, Link } from 'react-router-dom';
+import { Authenticator } from '@aws-amplify/ui-react';
+// import { Route, Routes, Link } from 'react-router-dom';
+import '@aws-amplify/ui-react/styles.css';
 
 export function App() {
   return (
-    <div>
-      <NxWelcome title="frontend" />
-
-      {/* START: routes */}
-      {/* These routes and navigation have been generated for you */}
-      {/* Feel free to move and update them to fit your needs */}
-      <br />
-      <hr />
-      <br />
-      <div role="navigation">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/page-2">Page 2</Link>
-          </li>
-        </ul>
-      </div>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              This is the generated root route.{' '}
-              <Link to="/page-2">Click here for page 2.</Link>
+    <Authenticator
+      loginMechanisms={['email']}
+      signUpAttributes={['email']}
+      components={{
+        Footer() {
+          return (
+            <div className="text-center p-4 text-sm text-gray-500">
+              © 2025 Tendo. All rights reserved.
             </div>
-          }
-        />
-        <Route
-          path="/page-2"
-          element={
-            <div>
-              <Link to="/">Click here to go back to root page.</Link>
-            </div>
-          }
-        />
-      </Routes>
-      {/* END: routes */}
-    </div>
+          );
+        },
+      }}
+    >
+      {({ signOut, user }) => (
+        <main className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1>Welcome {user?.signInDetails?.loginId}</h1>
+            <button
+              onClick={signOut}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Sign out
+            </button>
+          </div>
+        </main>
+      )}
+    </Authenticator>
   );
 }
 
