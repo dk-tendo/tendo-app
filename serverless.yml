@@ -30,7 +30,7 @@ custom:
     sourcemap: true
     target: 'node18'
     platform: 'node'
-    external: ['aws-sdk', 'pg-native']
+    external: ['aws-sdk', 'pg-native', '@fastify/aws-lambda']
 
   serverless-offline:
     httpPort: 3000
@@ -50,6 +50,18 @@ functions:
           cors:
             origin: ${self:custom.corsOrigins.${self:provider.stage}}
             allowCredentials: true
+
+  api:
+    handler: apps/api-gateway/src/main.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true
+      - http:
+          path: /
+          method: ANY
+          cors: true
 
 plugins:
   - serverless-offline

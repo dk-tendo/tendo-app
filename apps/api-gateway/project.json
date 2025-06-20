@@ -44,7 +44,10 @@
       "dependsOn": ["build"],
       "options": {
         "buildTarget": "api-gateway:build",
-        "runBuildTargetDependencies": false
+        "runBuildTargetDependencies": false,
+        "buildTargetOptions": {
+          "main": "apps/api-gateway/src/server.ts"
+        }
       },
       "configurations": {
         "development": {
@@ -64,7 +67,9 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "npx serverless deploy",
-        "cwd": "apps/api-gateway"
+        "cwd": "apps/api-gateway",
+        "outputPath": "dist/apps/api-gateway",
+        "main": "apps/api-gateway/src/main.ts"
       }
     }
   },

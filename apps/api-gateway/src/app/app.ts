@@ -1,31 +1,30 @@
-import * as path from 'path';
-import { FastifyInstance } from 'fastify';
-import AutoLoad from '@fastify/autoload';
+import { FastifyInstance, FastifyPluginAsync } from 'fastify';
 
-/* eslint-disable-next-line */
-export interface AppOptions {}
+export const app: FastifyPluginAsync = async (fastify: FastifyInstance) => {
+  await fastify.register(import('@fastify/cors'), {
+    origin: process.env['CORS_ORIGIN'] || '*',
+    credentials: true,
+  });
 
-export async function app(fastify: FastifyInstance, opts: AppOptions) {
-  fastify.get('/test', async (request, reply) => {
-    return {
-      message: 'Hello from Lambda!!',
+  await fastify.register(import('./routes/root'), { prefix: '/' });
+
+  fastify.setErrorHandler(async (error, request, reply) => {
+    fastify.log.error(error);
+
+    return reply.status(500).send({
+      error: 'Internal Server Error',
+      message: error.message,
+      statusCode: 500,
       timestamp: new Date().toISOString(),
-      requestId: request.id,
-    };
+    });
   });
 
-  // This loads all plugins defined in plugins
-  // those should be support plugins that are reused
-  // through your application
-  fastify.register(AutoLoad, {
-    dir: path.join(__dirname, 'plugins'),
-    options: { ...opts },
+  fastify.setNotFoundHandler(async (request, reply) => {
+    return reply.status(404).send({
+      error: 'Not Found',
+      message: `Route ${request.method} ${request.url} not found`,
+      statusCode: 404,
+      timestamp: new Date().toISOString(),
+    });
   });
-
-  // This loads all plugins defined in routes
-  // define your routes in one of these
-  fastify.register(AutoLoad, {
-    dir: path.join(__dirname, 'routes'),
-    options: { ...opts },
-  });
-}
+};

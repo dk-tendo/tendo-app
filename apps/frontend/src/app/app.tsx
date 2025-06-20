@@ -37,6 +37,13 @@ export function App() {
 
         try {
           const response = await fetch(`${config.baseURL}/test`);
+          const response2 = await fetch(`${config.baseURL}/`);
+
+          console.log(config.baseURL, 'config.baseURL');
+          const response2Data = await response2.json();
+
+          console.log('response2', response2Data);
+
           if (response.ok) {
             const data = await response.json();
             setMessage(data.message || 'Connected successfully!');
