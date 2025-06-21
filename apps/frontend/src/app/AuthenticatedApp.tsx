@@ -24,7 +24,7 @@ export const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({
     if (user?.signInDetails?.loginId) {
       // actions.getAllUsers();
       // const users = apiService.users.getUsers();
-      // console.log('users', users);
+      console.log('users', user);
     }
   }, [user?.signInDetails?.loginId]);
 
