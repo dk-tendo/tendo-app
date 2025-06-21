@@ -1,26 +1,37 @@
 import {
-  CreateUserRequest,
-  User,
   UserResponse,
   CreateUserValidationErrors,
+  UserSchema,
 } from '@tendo-app/shared-dto';
 import { UserRepository } from '@tendo-app/shared-database';
 
 export class UserService {
-  // Validate user input
-  static validateCreateUserRequest(data: any): {
+  static validateCreateUserRequest(data: UserSchema): {
     isValid: boolean;
     errors: CreateUserValidationErrors;
   } {
     const errors: CreateUserValidationErrors = {};
 
     // Name validation
-    if (!data.name || typeof data.name !== 'string') {
-      errors.name = 'Name is required and must be a string';
-    } else if (data.name.trim().length < 2) {
-      errors.name = 'Name must be at least 2 characters long';
-    } else if (data.name.trim().length > 100) {
-      errors.name = 'Name must be less than 100 characters';
+    const nameFields = [
+      { value: data.firstName, label: 'First name' },
+      { value: data.lastName, label: 'Last name' },
+    ];
+
+    for (const field of nameFields) {
+      if (!field.value || typeof field.value !== 'string') {
+        errors.name = `${field.label} is required and must be a string`;
+        break;
+      }
+      const length = field.value.trim().length;
+      if (length < 2) {
+        errors.name = `${field.label} must be at least 2 characters long`;
+        break;
+      }
+      if (length > 100) {
+        errors.name = `${field.label} must be less than 100 characters`;
+        break;
+      }
     }
 
     // Email validation
@@ -33,15 +44,6 @@ export class UserService {
       }
     }
 
-    // Age validation (optional)
-    if (data.age !== undefined && data.age !== null) {
-      if (typeof data.age !== 'number' || !Number.isInteger(data.age)) {
-        errors.age = 'Age must be a valid integer';
-      } else if (data.age < 0 || data.age > 150) {
-        errors.age = 'Age must be between 0 and 150';
-      }
-    }
-
     return {
       isValid: Object.keys(errors).length === 0,
       errors,
@@ -49,7 +51,7 @@ export class UserService {
   }
 
   // Create a new user
-  static async createUser(userData: CreateUserRequest): Promise<UserResponse> {
+  static async createUser(userData: UserSchema): Promise<UserSchema> {
     try {
       // Validate input
       const validation = this.validateCreateUserRequest(userData);
@@ -67,9 +69,11 @@ export class UserService {
 
       // Create user
       const user = await UserRepository.create({
-        name: userData.name.trim(),
+        firstName: userData.firstName.trim(),
+        lastName: userData.lastName.trim(),
         email: userData.email.toLowerCase().trim(),
-        age: userData.age,
+        role: userData.role || 'patient',
+        patientIds: userData.patientIds || [],
       });
 
       // Transform to response format
@@ -81,7 +85,7 @@ export class UserService {
   }
 
   // Get user by ID
-  static async getUserById(id: string): Promise<UserResponse | null> {
+  static async getUserById(id: string): Promise<UserSchema | null> {
     try {
       const user = await UserRepository.findById(id);
       return user ? this.transformUserToResponse(user) : null;
@@ -91,8 +95,14 @@ export class UserService {
     }
   }
 
+  // Get user by email
+  static async getUserByEmail(email: string): Promise<UserSchema | null> {
+    const user = await UserRepository.findByEmail(email);
+    return user ? this.transformUserToResponse(user) : null;
+  }
+
   // Get all users
-  static async getAllUsers(limit = 50, offset = 0): Promise<UserResponse[]> {
+  static async getAllUsers(limit = 50, offset = 0): Promise<UserSchema[]> {
     try {
       const users = await UserRepository.findAll(limit, offset);
       return users.map((user) => this.transformUserToResponse(user));
@@ -103,16 +113,20 @@ export class UserService {
   }
 
   // Transform database user to response format
-  private static transformUserToResponse(user: User): UserResponse {
+  private static transformUserToResponse(user: UserResponse): UserSchema {
     return {
-      id: user.id,
+      id: user.id || '',
       email: user.email,
-      createdAt: user.created_at.toISOString(),
-      updatedAt: user.updated_at.toISOString(),
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role as 'doctor' | 'patient' | undefined,
+      patientIds: user.patient_ids || [],
+      createdAt: user.created_at?.toISOString(),
+      updatedAt: user.updated_at?.toISOString(),
     };
   }
 
-  // Initialize database (create tables)
+  // Initialize database
   static async initializeDatabase(): Promise<void> {
     try {
       await UserRepository.createTable();

@@ -1,5 +1,9 @@
 import { getClient } from './database.connection';
-import { User, CreateUserRequest } from '@tendo-app/shared-dto';
+import {
+  CreateUserRequest,
+  UserSchema,
+  UserResponse,
+} from '@tendo-app/shared-dto';
 const crypto = require('crypto');
 
 export class UserRepository {
@@ -11,9 +15,11 @@ export class UserRepository {
       const createTableQuery = `
         CREATE TABLE IF NOT EXISTS users (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          name VARCHAR(255) NOT NULL,
+          first_name VARCHAR(255) NOT NULL,
+          last_name VARCHAR(255) NOT NULL,
           email VARCHAR(255) UNIQUE NOT NULL,
-          age INTEGER,
+          role VARCHAR(255) DEFAULT 'patient',
+          patient_ids UUID[],
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
@@ -29,8 +35,18 @@ export class UserRepository {
     }
   }
 
+  // static async dropTable(): Promise<void> {
+  //   const client = await getClient();
+  //   try {
+  //     await client.query('DROP TABLE IF EXISTS users CASCADE');
+  //     console.log('Users table dropped');
+  //   } finally {
+  //     client.release();
+  //   }
+  // }
+
   // Create a new user
-  static async create(userData: CreateUserRequest): Promise<User> {
+  static async create(userData: UserSchema): Promise<UserResponse> {
     const client = await getClient();
 
     try {
@@ -38,16 +54,18 @@ export class UserRepository {
       const now = new Date();
 
       const query = `
-        INSERT INTO users (id, name, email, age, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO users (id, first_name, last_name, email, role, patient_ids, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
       `;
 
       const values = [
         id,
-        userData.name,
+        userData.firstName,
+        userData.lastName,
         userData.email,
-        userData.age || null,
+        userData.role,
+        userData.patientIds,
         now,
         now,
       ];
@@ -58,42 +76,42 @@ export class UserRepository {
         throw new Error('Failed to create user');
       }
 
-      return result.rows[0] as User;
+      return result.rows[0] as UserResponse;
     } finally {
       client.release();
     }
   }
 
   // Find user by email
-  static async findByEmail(email: string): Promise<User | null> {
+  static async findByEmail(email: string): Promise<UserResponse | null> {
     const client = await getClient();
 
     try {
       const query = 'SELECT * FROM users WHERE email = $1';
       const result = await client.query(query, [email]);
 
-      return result.rows.length > 0 ? (result.rows[0] as User) : null;
+      return result.rows.length > 0 ? (result.rows[0] as UserResponse) : null;
     } finally {
       client.release();
     }
   }
 
   // Find user by ID
-  static async findById(id: string): Promise<User | null> {
+  static async findById(id: string): Promise<UserResponse | null> {
     const client = await getClient();
 
     try {
       const query = 'SELECT * FROM users WHERE id = $1';
       const result = await client.query(query, [id]);
 
-      return result.rows.length > 0 ? (result.rows[0] as User) : null;
+      return result.rows.length > 0 ? (result.rows[0] as UserResponse) : null;
     } finally {
       client.release();
     }
   }
 
   // Get all users with pagination
-  static async findAll(limit = 50, offset = 0): Promise<User[]> {
+  static async findAll(limit = 50, offset = 0): Promise<UserResponse[]> {
     const client = await getClient();
 
     try {
@@ -104,7 +122,7 @@ export class UserRepository {
       `;
 
       const result = await client.query(query, [limit, offset]);
-      return result.rows as User[];
+      return result.rows as UserResponse[];
     } finally {
       client.release();
     }
@@ -114,7 +132,7 @@ export class UserRepository {
   static async update(
     id: string,
     updates: Partial<CreateUserRequest>
-  ): Promise<User | null> {
+  ): Promise<UserResponse | null> {
     const client = await getClient();
 
     try {
@@ -136,7 +154,7 @@ export class UserRepository {
       `;
 
       const result = await client.query(query, [id, ...values]);
-      return result.rows.length > 0 ? (result.rows[0] as User) : null;
+      return result.rows.length > 0 ? (result.rows[0] as UserResponse) : null;
     } finally {
       client.release();
     }

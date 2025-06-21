@@ -61,6 +61,48 @@ functions:
             origin: ${self:custom.corsOrigins.${self:provider.stage}}
             allowCredentials: true
 
+  getUserByEmail:
+    handler: apps/api-gateway/src/handlers/users/get-user-by-email.main
+    events:
+      - http:
+          path: users/{email}
+          method: get
+          cors:
+            origin: ${self:custom.corsOrigins.${self:provider.stage}}
+            allowCredentials: true
+          request:
+            parameters:
+              paths:
+                email: true
+
+  createUser:
+    handler: apps/api-gateway/src/handlers/users/create-user.main
+    events:
+      - http:
+          path: users
+          method: post
+          cors:
+            origin: ${self:custom.corsOrigins.${self:provider.stage}}
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: true
+      - http:
+          path: users
+          method: options
+          cors:
+            origin: ${self:custom.corsOrigins.${self:provider.stage}}
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: true
+
   # Fastify APIs
   api:
     handler: apps/api-gateway/src/main.handler

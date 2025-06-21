@@ -1,4 +1,4 @@
-import { signIn, signUp, signOut, getCurrentUser } from 'aws-amplify/auth';
+import { signIn, signUp, signOut, fetchUserAttributes } from 'aws-amplify/auth';
 
 export class AuthService {
   async signUp(email: string, password: string) {
@@ -41,7 +41,7 @@ export class AuthService {
 
   async getCurrentUser() {
     try {
-      const user = await getCurrentUser();
+      const user = await fetchUserAttributes();
       return { success: true, user };
     } catch (error) {
       return { success: false, error };

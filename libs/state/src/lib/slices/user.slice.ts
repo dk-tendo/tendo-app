@@ -1,10 +1,12 @@
 import { configService } from '@tendo-app/config';
+import { ApiResponse, UserSchema } from '@tendo-app/shared-dto';
 import {
   createAsyncThunk,
   createSlice,
   PayloadAction,
   Slice,
 } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 
 interface UserState {
   userId: string | undefined;
@@ -12,17 +14,70 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  userId: 'test-user-id',
+  userId: undefined,
   userLoading: false,
 };
 
-// export const getUserByEmail = createAsyncThunk(
-//   'user/getUserByEmail',
-//   async (email: string) => {
-//     const user = await apiService.users.getUserByEmail(email);
-//     return user;
-//   }
-// );
+export const getUserByEmail = createAsyncThunk(
+  'user/getUserByEmail',
+  async (email: string) => {
+    const apiConfig = configService.getConfig();
+    const response = await fetch(`${apiConfig.baseURL}/users/${email}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const result = (await response.json()) as ApiResponse;
+
+    if (response.ok) {
+      console.log('User found:', result.data);
+      return result.data as UserSchema | null;
+    }
+
+    console.error(
+      'Error getting user by email:',
+      result.message || result.error
+    );
+    return result.error;
+  }
+);
+
+export const initializeUser = createAsyncThunk(
+  'user/initializeUser',
+  async (user: UserSchema, { dispatch }) => {
+    const userByEmailResponse = await dispatch(getUserByEmail(user.email));
+    const returnedUser = userByEmailResponse.payload;
+
+    if (!returnedUser) {
+      console.log('User not found. Creating a new user: ', user.email);
+      dispatch(createUser(user));
+    }
+  }
+);
+
+export const createUser = createAsyncThunk(
+  'user/createUser',
+  async (user: UserSchema) => {
+    const apiConfig = configService.getConfig();
+    const response = await fetch(`${apiConfig.baseURL}/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...user, id: uuidv4() }),
+    });
+    const result = (await response.json()) as ApiResponse;
+
+    if (response.ok) {
+      console.log('User created:', result.data);
+      return result.data as UserSchema;
+    }
+
+    console.error('Error creating user:', result.message || result.error);
+    return result.error;
+  }
+);
 
 export const getAllUsers = createAsyncThunk(
   'user/getAllUsers',

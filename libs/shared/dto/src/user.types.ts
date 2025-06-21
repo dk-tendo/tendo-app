@@ -1,10 +1,12 @@
 export interface UserSchema {
-  id: string;
   email: string;
-  role: 'doctor' | 'patient';
-  patientIds?: string[];
   firstName: string;
   lastName: string;
+  id?: string;
+  role?: 'doctor' | 'patient';
+  patientIds?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface User {
@@ -17,16 +19,20 @@ export interface User {
 }
 
 export interface CreateUserRequest {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  age?: number;
 }
 
 export interface UserResponse {
-  id: string;
+  id?: string;
   email: string;
-  createdAt?: string;
-  updatedAt?: string;
+  first_name: string;
+  last_name: string;
+  role?: string;
+  patient_ids?: string[];
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CreateUserValidationErrors {
