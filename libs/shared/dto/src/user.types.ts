@@ -7,6 +7,7 @@ export interface UserSchema {
   patientIds?: string[];
   createdAt?: string;
   updatedAt?: string;
+  imageUrl?: string;
 }
 
 export interface User {
@@ -18,12 +19,6 @@ export interface User {
   updated_at: Date;
 }
 
-export interface CreateUserRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
 export interface UserResponse {
   id?: string;
   email: string;
@@ -31,6 +26,7 @@ export interface UserResponse {
   last_name: string;
   role?: string;
   patient_ids?: string[];
+  image_url?: string;
   created_at: Date;
   updated_at: Date;
 }

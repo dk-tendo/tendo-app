@@ -9,18 +9,26 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 interface UserState {
-  userId: string | undefined;
+  userEmail: string | null;
+  userName: string | null;
+  userRole: string | null;
+  userPatientIds: string[] | null;
   userLoading: boolean;
+  userImageUrl: string | null;
 }
 
 const initialState: UserState = {
-  userId: undefined,
+  userEmail: null,
+  userName: null,
+  userRole: null,
+  userPatientIds: null,
   userLoading: false,
+  userImageUrl: null,
 };
 
 export const getUserByEmail = createAsyncThunk(
   'user/getUserByEmail',
-  async (email: string) => {
+  async (email: string, { rejectWithValue }) => {
     const apiConfig = configService.getConfig();
     const response = await fetch(`${apiConfig.baseURL}/users/${email}`, {
       method: 'GET',
@@ -31,7 +39,6 @@ export const getUserByEmail = createAsyncThunk(
     const result = (await response.json()) as ApiResponse;
 
     if (response.ok) {
-      console.log('User found:', result.data);
       return result.data as UserSchema | null;
     }
 
@@ -39,7 +46,7 @@ export const getUserByEmail = createAsyncThunk(
       'Error getting user by email:',
       result.message || result.error
     );
-    return result.error;
+    return rejectWithValue(result.error);
   }
 );
 
@@ -110,9 +117,14 @@ export const userSlice: Slice<UserState> = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    // builder.addCase(getAllUsers.fulfilled, (state, action) => {
-    //   state.users = action.payload
-    // });
+    builder.addCase(getUserByEmail.fulfilled, (state, action) => {
+      const user = action.payload as UserSchema;
+      state.userEmail = user.email || null;
+      state.userName = `${user.firstName} ${user.lastName}`;
+      state.userRole = user.role || null;
+      state.userPatientIds = user.patientIds || null;
+      state.userImageUrl = user.imageUrl || null;
+    });
   },
 });
 

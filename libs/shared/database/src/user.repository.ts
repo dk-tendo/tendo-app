@@ -1,9 +1,5 @@
 import { getClient } from './database.connection';
-import {
-  CreateUserRequest,
-  UserSchema,
-  UserResponse,
-} from '@tendo-app/shared-dto';
+import { UserSchema, UserResponse } from '@tendo-app/shared-dto';
 const crypto = require('crypto');
 
 export class UserRepository {
@@ -20,6 +16,7 @@ export class UserRepository {
           email VARCHAR(255) UNIQUE NOT NULL,
           role VARCHAR(255) DEFAULT 'patient',
           patient_ids UUID[],
+          image_url VARCHAR(255),
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
@@ -54,8 +51,8 @@ export class UserRepository {
       const now = new Date();
 
       const query = `
-        INSERT INTO users (id, first_name, last_name, email, role, patient_ids, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO users (id, first_name, last_name, email, role, patient_ids, image_url, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *
       `;
 
@@ -66,6 +63,7 @@ export class UserRepository {
         userData.email,
         userData.role,
         userData.patientIds,
+        userData.imageUrl,
         now,
         now,
       ];
@@ -131,7 +129,7 @@ export class UserRepository {
   // Update user
   static async update(
     id: string,
-    updates: Partial<CreateUserRequest>
+    updates: Partial<UserSchema>
   ): Promise<UserResponse | null> {
     const client = await getClient();
 

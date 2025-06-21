@@ -121,6 +121,7 @@ export class UserService {
       lastName: user.last_name,
       role: user.role as 'doctor' | 'patient' | undefined,
       patientIds: user.patient_ids || [],
+      imageUrl: user.image_url || '',
       createdAt: user.created_at?.toISOString(),
       updatedAt: user.updated_at?.toISOString(),
     };

@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UserService } from '@tendo-app/shared-services';
-import { ApiResponse, CreateUserRequest } from '@tendo-app/shared-dto';
+import { ApiResponse, UserSchema } from '@tendo-app/shared-dto';
 import { randomUUID } from 'crypto';
 
 const corsHeaders = {
@@ -60,7 +60,7 @@ export const main = async (
     }
 
     // Parse request body
-    let requestBody: CreateUserRequest;
+    let requestBody: UserSchema;
     try {
       if (!event.body) {
         throw new Error('Request body is required');

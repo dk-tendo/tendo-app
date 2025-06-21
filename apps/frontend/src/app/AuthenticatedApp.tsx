@@ -41,25 +41,10 @@ export const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({
   };
 
   return (
-    <main className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <button
-          onClick={signOut}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Sign out
-        </button>
-        <button
-          onClick={testGetUsers}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Test get users
-        </button>
-      </div>
-
+    <div>
       <Routes>
         <Route path="/" element={<Home />} />
       </Routes>
-    </main>
+    </div>
   );
 };
