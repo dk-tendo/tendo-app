@@ -1,4 +1,4 @@
-export interface ThemeSchema {
+export interface Theme {
   id: string;
   name: string;
   description: string;
@@ -8,13 +8,13 @@ export interface ThemeSchema {
   secondaryColor?: string;
   accentColor?: string;
   borderColor?: string;
-  primaryFontFamily?: FontSchema;
+  primaryFontFamily?: Font;
   fontSize?: string;
   fontWeight?: string;
   languageCode: string;
 }
 
-export interface FontSchema {
+export interface Font {
   value: string;
   url: string;
   type: string;

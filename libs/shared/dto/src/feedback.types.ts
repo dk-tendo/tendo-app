@@ -1,17 +1,19 @@
-export interface FeedbackSchema {
+export interface Feedback {
   id: string;
   userId: string;
-  feedback: [
-    {
-      question: FeedbackQuestionSchema;
-      answer: string | number | boolean | Date;
-    }
-  ];
+  feedback: FeedbackStep[] | [];
   sentiment?: 'positive' | 'negative' | 'neutral';
 }
 
-export interface FeedbackQuestionSchema {
+export interface FeedbackQuestion {
   id: string;
   question: string;
   answerType: 'text' | 'number' | 'boolean' | 'date';
+}
+
+export interface FeedbackStep {
+  id: string;
+  question: FeedbackQuestion;
+  answerType: 'text' | 'number' | 'boolean' | 'date';
+  completedOn?: string;
 }

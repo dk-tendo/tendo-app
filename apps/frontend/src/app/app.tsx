@@ -51,7 +51,7 @@ export function App() {
         },
       }}
     >
-      {({ signOut }) => <AuthenticatedApp signOut={() => signOut?.()} />}
+      <AuthenticatedApp />
     </Authenticator>
   );
 }

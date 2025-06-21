@@ -1,12 +1,12 @@
 import {
-  UserResponse,
-  CreateUserValidationErrors,
   UserSchema,
+  CreateUserValidationErrors,
+  User,
 } from '@tendo-app/shared-dto';
 import { UserRepository } from '@tendo-app/shared-database';
 
 export class UserService {
-  static validateCreateUserRequest(data: UserSchema): {
+  static validateCreateUserRequest(data: User): {
     isValid: boolean;
     errors: CreateUserValidationErrors;
   } {
@@ -51,7 +51,7 @@ export class UserService {
   }
 
   // Create a new user
-  static async createUser(userData: UserSchema): Promise<UserSchema> {
+  static async createUser(userData: User): Promise<User> {
     try {
       // Validate input
       const validation = this.validateCreateUserRequest(userData);
@@ -62,18 +62,23 @@ export class UserService {
       }
 
       // Check if user already exists
-      const existingUser = await UserRepository.findByEmail(userData.email);
+      const existingUser = await UserRepository.findByEmail(
+        userData.email as string
+      );
       if (existingUser) {
         throw new Error('User with this email already exists');
       }
 
       // Create user
       const user = await UserRepository.create({
-        firstName: userData.firstName.trim(),
-        lastName: userData.lastName.trim(),
-        email: userData.email.toLowerCase().trim(),
+        firstName: userData.firstName?.trim(),
+        lastName: userData.lastName?.trim(),
+        email: userData.email?.toLowerCase().trim(),
         role: userData.role || 'patient',
         patientIds: userData.patientIds || [],
+        clinicId: userData.clinicId || '',
+        incompleteTaskIds: userData.incompleteTaskIds || [],
+        completedTaskIds: userData.completedTaskIds || [],
       });
 
       // Transform to response format
@@ -85,7 +90,7 @@ export class UserService {
   }
 
   // Get user by ID
-  static async getUserById(id: string): Promise<UserSchema | null> {
+  static async getUserById(id: string): Promise<User | null> {
     try {
       const user = await UserRepository.findById(id);
       return user ? this.transformUserToResponse(user) : null;
@@ -96,13 +101,13 @@ export class UserService {
   }
 
   // Get user by email
-  static async getUserByEmail(email: string): Promise<UserSchema | null> {
+  static async getUserByEmail(email: string): Promise<User | null> {
     const user = await UserRepository.findByEmail(email);
     return user ? this.transformUserToResponse(user) : null;
   }
 
   // Get all users
-  static async getAllUsers(limit = 50, offset = 0): Promise<UserSchema[]> {
+  static async getAllUsers(limit = 50, offset = 0): Promise<User[]> {
     try {
       const users = await UserRepository.findAll(limit, offset);
       return users.map((user) => this.transformUserToResponse(user));
@@ -113,7 +118,7 @@ export class UserService {
   }
 
   // Transform database user to response format
-  private static transformUserToResponse(user: UserResponse): UserSchema {
+  private static transformUserToResponse(user: UserSchema): User {
     return {
       id: user.id || '',
       email: user.email,
@@ -122,6 +127,9 @@ export class UserService {
       role: user.role as 'doctor' | 'patient' | undefined,
       patientIds: user.patient_ids || [],
       imageUrl: user.image_url || '',
+      clinicId: user.clinic_id || '',
+      incompleteTaskIds: user.incomplete_task_ids || [],
+      completedTaskIds: user.completed_task_ids || [],
       createdAt: user.created_at?.toISOString(),
       updatedAt: user.updated_at?.toISOString(),
     };

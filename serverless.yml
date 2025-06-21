@@ -41,6 +41,14 @@ custom:
     corsAllowHeaders: 'accept,content-type,x-api-key,authorization'
 
 functions:
+  initDatabase:
+    handler: apps/api-gateway/src/handlers/admin/init-database.main
+    events:
+      - http:
+          path: admin/init-database
+          method: post
+          cors: true
+
   test:
     handler: apps/api-gateway/src/handlers/test.main
     events:

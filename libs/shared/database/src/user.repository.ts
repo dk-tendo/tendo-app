@@ -1,5 +1,10 @@
 import { getClient } from './database.connection';
-import { UserSchema, UserResponse } from '@tendo-app/shared-dto';
+import {
+  User,
+  UserSchema,
+  TableGenerator,
+  QueryBuilder,
+} from '@tendo-app/shared-dto';
 const crypto = require('crypto');
 
 export class UserRepository {
@@ -8,22 +13,9 @@ export class UserRepository {
     const client = await getClient();
 
     try {
-      const createTableQuery = `
-        CREATE TABLE IF NOT EXISTS users (
-          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          first_name VARCHAR(255) NOT NULL,
-          last_name VARCHAR(255) NOT NULL,
-          email VARCHAR(255) UNIQUE NOT NULL,
-          role VARCHAR(255) DEFAULT 'patient',
-          patient_ids UUID[],
-          image_url VARCHAR(255),
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-        CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
-      `;
+      const createTableQuery =
+        TableGenerator.generateCreateTableQuery(UserSchema);
+      console.log('Generated query:', createTableQuery);
 
       await client.query(createTableQuery);
       console.log('Users table created or already exists');
@@ -32,41 +24,34 @@ export class UserRepository {
     }
   }
 
-  // static async dropTable(): Promise<void> {
-  //   const client = await getClient();
-  //   try {
-  //     await client.query('DROP TABLE IF EXISTS users CASCADE');
-  //     console.log('Users table dropped');
-  //   } finally {
-  //     client.release();
-  //   }
-  // }
-
   // Create a new user
-  static async create(userData: UserSchema): Promise<UserResponse> {
+  static async create(userData: User): Promise<UserSchema> {
     const client = await getClient();
 
     try {
-      const id = crypto.randomUUID();
-      const now = new Date();
+      // Add auto-generated fields
+      const dataWithDefaults = {
+        id: crypto.randomUUID(),
+        first_name: userData.firstName,
+        last_name: userData.lastName,
+        email: userData.email,
+        role: userData.role || 'patient',
+        patient_ids: userData.patientIds,
+        image_url: userData.imageUrl,
+        clinic_id: userData.clinicId,
+        incomplete_task_ids: userData.incompleteTaskIds,
+        completed_task_ids: userData.completedTaskIds,
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
 
-      const query = `
-        INSERT INTO users (id, first_name, last_name, email, role, patient_ids, image_url, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING *
-      `;
+      const { query, values } = QueryBuilder.buildInsertQuery(
+        'users',
+        dataWithDefaults
+      );
 
-      const values = [
-        id,
-        userData.firstName,
-        userData.lastName,
-        userData.email,
-        userData.role,
-        userData.patientIds,
-        userData.imageUrl,
-        now,
-        now,
-      ];
+      console.log('Generated query:', query);
+      console.log('Values:', values);
 
       const result = await client.query(query, values);
 
@@ -74,42 +59,42 @@ export class UserRepository {
         throw new Error('Failed to create user');
       }
 
-      return result.rows[0] as UserResponse;
+      return result.rows[0] as UserSchema;
     } finally {
       client.release();
     }
   }
 
   // Find user by email
-  static async findByEmail(email: string): Promise<UserResponse | null> {
+  static async findByEmail(email: string): Promise<UserSchema | null> {
     const client = await getClient();
 
     try {
       const query = 'SELECT * FROM users WHERE email = $1';
       const result = await client.query(query, [email]);
 
-      return result.rows.length > 0 ? (result.rows[0] as UserResponse) : null;
+      return result.rows.length > 0 ? (result.rows[0] as UserSchema) : null;
     } finally {
       client.release();
     }
   }
 
   // Find user by ID
-  static async findById(id: string): Promise<UserResponse | null> {
+  static async findById(id: string): Promise<UserSchema | null> {
     const client = await getClient();
 
     try {
       const query = 'SELECT * FROM users WHERE id = $1';
       const result = await client.query(query, [id]);
 
-      return result.rows.length > 0 ? (result.rows[0] as UserResponse) : null;
+      return result.rows.length > 0 ? (result.rows[0] as UserSchema) : null;
     } finally {
       client.release();
     }
   }
 
   // Get all users with pagination
-  static async findAll(limit = 50, offset = 0): Promise<UserResponse[]> {
+  static async findAll(limit = 50, offset = 0): Promise<UserSchema[]> {
     const client = await getClient();
 
     try {
@@ -120,7 +105,7 @@ export class UserRepository {
       `;
 
       const result = await client.query(query, [limit, offset]);
-      return result.rows as UserResponse[];
+      return result.rows as UserSchema[];
     } finally {
       client.release();
     }
@@ -129,30 +114,32 @@ export class UserRepository {
   // Update user
   static async update(
     id: string,
-    updates: Partial<UserSchema>
-  ): Promise<UserResponse | null> {
+    updates: Partial<User>
+  ): Promise<UserSchema | null> {
     const client = await getClient();
 
     try {
-      const fields = Object.keys(updates);
-      const values = Object.values(updates);
+      // Convert camelCase to snake_case for database
+      const dbUpdates = {
+        first_name: updates.firstName,
+        last_name: updates.lastName,
+        email: updates.email,
+        role: updates.role,
+        patient_ids: updates.patientIds,
+        image_url: updates.imageUrl,
+        clinic_id: updates.clinicId,
+        incomplete_task_ids: updates.incompleteTaskIds,
+        completed_task_ids: updates.completedTaskIds,
+      };
 
-      if (fields.length === 0) {
-        throw new Error('No fields to update');
-      }
+      const { query, values } = QueryBuilder.buildUpdateQuery(
+        'users',
+        id,
+        dbUpdates
+      );
 
-      const setClause = fields
-        .map((field, index) => `${field} = $${index + 2}`)
-        .join(', ');
-      const query = `
-        UPDATE users
-        SET ${setClause}, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-        RETURNING *
-      `;
-
-      const result = await client.query(query, [id, ...values]);
-      return result.rows.length > 0 ? (result.rows[0] as UserResponse) : null;
+      const result = await client.query(query, values);
+      return result.rows.length > 0 ? (result.rows[0] as UserSchema) : null;
     } finally {
       client.release();
     }

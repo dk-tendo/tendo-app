@@ -1,18 +1,10 @@
-import { UserSchema } from '@tendo-app/shared-dto';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { Home } from '../pages';
+import { Home, Admin } from '../pages';
 import { useActions } from '@tendo-app/state';
 import { useAuth } from '../providers/AuthProvider';
-import toast from 'react-hot-toast';
 
-interface AuthenticatedAppProps {
-  signOut: () => void;
-}
-
-export const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({
-  signOut,
-}) => {
+export const AuthenticatedApp = () => {
   const actions = useActions();
   const { user } = useAuth();
   const userLoaded = useRef(false);
@@ -40,6 +32,7 @@ export const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </div>
   );

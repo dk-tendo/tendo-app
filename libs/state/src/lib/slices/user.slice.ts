@@ -1,5 +1,5 @@
 import { configService } from '@tendo-app/config';
-import { ApiResponse, UserSchema } from '@tendo-app/shared-dto';
+import { ApiResponse, User } from '@tendo-app/shared-dto';
 import {
   createAsyncThunk,
   createSlice,
@@ -39,7 +39,7 @@ export const getUserByEmail = createAsyncThunk(
     const result = (await response.json()) as ApiResponse;
 
     if (response.ok) {
-      return result.data as UserSchema | null;
+      return result.data as User | null;
     }
 
     console.error(
@@ -52,7 +52,11 @@ export const getUserByEmail = createAsyncThunk(
 
 export const initializeUser = createAsyncThunk(
   'user/initializeUser',
-  async (user: UserSchema, { dispatch }) => {
+  async (user: User, { dispatch }) => {
+    if (!user.email) {
+      throw new Error('User email is required');
+    }
+
     const userByEmailResponse = await dispatch(getUserByEmail(user.email));
     const returnedUser = userByEmailResponse.payload;
 
@@ -65,7 +69,7 @@ export const initializeUser = createAsyncThunk(
 
 export const createUser = createAsyncThunk(
   'user/createUser',
-  async (user: UserSchema) => {
+  async (user: User) => {
     const apiConfig = configService.getConfig();
     const response = await fetch(`${apiConfig.baseURL}/users`, {
       method: 'POST',
@@ -78,7 +82,7 @@ export const createUser = createAsyncThunk(
 
     if (response.ok) {
       console.log('User created:', result.data);
-      return result.data as UserSchema;
+      return result.data as User;
     }
 
     console.error('Error creating user:', result.message || result.error);
@@ -122,7 +126,7 @@ export const userSlice: Slice<UserState> = createSlice({
     });
     builder.addCase(getUserByEmail.fulfilled, (state, action) => {
       state.userLoading = false;
-      const user = action.payload as UserSchema;
+      const user = action.payload as User;
       state.userEmail = user.email || null;
       state.userName = `${user.firstName} ${user.lastName}`;
       state.userRole = user.role || null;

@@ -1,11 +1,5 @@
 import { BaseApiService } from './api.service';
-import {
-  User,
-  CreateUserRequest,
-  UpdateUserRequest,
-  ApiResponse,
-  PaginatedResponse,
-} from '@tendo-app/shared-dto';
+import { ApiResponse, User } from '@tendo-app/shared-dto';
 
 export interface GetUsersParams {
   page?: number;
@@ -18,28 +12,18 @@ export interface GetUsersParams {
 export class UserService extends BaseApiService {
   private readonly basePath = '/users';
 
-  async getUsers(
-    params: GetUsersParams = {}
-  ): Promise<ApiResponse<PaginatedResponse<User>>> {
-    const queryString = this.buildQueryString(params);
-    return this.request(`${this.basePath}${queryString}`);
-  }
-
   async getUserById(id: string): Promise<ApiResponse<User>> {
     return this.request(`${this.basePath}/${id}`);
   }
 
-  async createUser(userData: CreateUserRequest): Promise<ApiResponse<User>> {
+  async createUser(userData: User): Promise<ApiResponse<User>> {
     return this.request(`${this.basePath}`, {
       method: 'POST',
       body: JSON.stringify(userData),
     });
   }
 
-  async updateUser(
-    id: string,
-    userData: UpdateUserRequest
-  ): Promise<ApiResponse<User>> {
+  async updateUser(id: string, userData: User): Promise<ApiResponse<User>> {
     return this.request(`${this.basePath}/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
