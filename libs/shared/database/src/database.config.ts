@@ -1,6 +1,5 @@
 import { DatabaseConfig } from '@tendo-app/shared-dto';
 
-// Check if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
 
 if (!isBrowser && !process.env['DB_HOST']) {
@@ -8,7 +7,10 @@ if (!isBrowser && !process.env['DB_HOST']) {
     require('dotenv').config();
     console.log('📋 Environment variables loaded from .env file');
   } catch (error) {
-    console.warn('⚠️ Could not load dotenv (this is normal in production)');
+    console.warn(
+      '⚠️ Could not load dotenv (this is normal in production)',
+      error
+    );
   }
 }
 
