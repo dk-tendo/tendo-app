@@ -1,6 +1,5 @@
-import { setUserId, setUserLoading } from './slices/user.slice';
+import { getAllUsers } from './slices/user.slice';
 
 export const actionCreators = {
-  setUserId,
-  setUserLoading,
+  getAllUsers,
 };

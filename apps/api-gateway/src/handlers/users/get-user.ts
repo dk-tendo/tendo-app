@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { randomUUID } from 'crypto';
 import { UserService } from '@tendo-app/shared-services';
+import { randomUUID } from 'crypto';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': process.env.CORS_ORIGIN || '*',
@@ -38,9 +38,7 @@ export const main = async (
       };
     }
 
-    const users = await UserService.getUserByEmail(
-      event.pathParameters?.email as string
-    );
+    const users = await UserService.getAllUsers();
 
     return {
       statusCode: 200,

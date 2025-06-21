@@ -1,21 +1,8 @@
 import { getClient } from './database.connection';
-import { UserSchema } from '@tendo-app/shared-dto';
+import { User, CreateUserRequest } from '@tendo-app/shared-dto';
 const crypto = require('crypto');
 
 export class UserRepository {
-  static async findByEmail(email: string): Promise<UserSchema | null> {
-    const client = await getClient();
-
-    try {
-      const query = 'SELECT * FROM users WHERE email = $1';
-      const result = await client.query(query, [email]);
-
-      return result.rows.length > 0 ? (result.rows[0] as UserSchema) : null;
-    } finally {
-      client.release();
-    }
-  }
-
   // Create the users table if it doesn't exist
   static async createTable(): Promise<void> {
     const client = await getClient();
@@ -43,7 +30,7 @@ export class UserRepository {
   }
 
   // Create a new user
-  static async create(userData: UserSchema): Promise<UserSchema> {
+  static async create(userData: CreateUserRequest): Promise<User> {
     const client = await getClient();
 
     try {
@@ -58,9 +45,9 @@ export class UserRepository {
 
       const values = [
         id,
-        userData.firstName,
-        userData.lastName,
+        userData.name,
         userData.email,
+        userData.age || null,
         now,
         now,
       ];
@@ -71,28 +58,42 @@ export class UserRepository {
         throw new Error('Failed to create user');
       }
 
-      return result.rows[0] as UserSchema;
+      return result.rows[0] as User;
+    } finally {
+      client.release();
+    }
+  }
+
+  // Find user by email
+  static async findByEmail(email: string): Promise<User | null> {
+    const client = await getClient();
+
+    try {
+      const query = 'SELECT * FROM users WHERE email = $1';
+      const result = await client.query(query, [email]);
+
+      return result.rows.length > 0 ? (result.rows[0] as User) : null;
     } finally {
       client.release();
     }
   }
 
   // Find user by ID
-  static async findById(id: string): Promise<UserSchema | null> {
+  static async findById(id: string): Promise<User | null> {
     const client = await getClient();
 
     try {
       const query = 'SELECT * FROM users WHERE id = $1';
       const result = await client.query(query, [id]);
 
-      return result.rows.length > 0 ? (result.rows[0] as UserSchema) : null;
+      return result.rows.length > 0 ? (result.rows[0] as User) : null;
     } finally {
       client.release();
     }
   }
 
   // Get all users with pagination
-  static async findAll(limit = 50, offset = 0): Promise<UserSchema[]> {
+  static async findAll(limit = 50, offset = 0): Promise<User[]> {
     const client = await getClient();
 
     try {
@@ -103,7 +104,7 @@ export class UserRepository {
       `;
 
       const result = await client.query(query, [limit, offset]);
-      return result.rows as UserSchema[];
+      return result.rows as User[];
     } finally {
       client.release();
     }
@@ -112,8 +113,8 @@ export class UserRepository {
   // Update user
   static async update(
     id: string,
-    updates: Partial<UserSchema>
-  ): Promise<UserSchema | null> {
+    updates: Partial<CreateUserRequest>
+  ): Promise<User | null> {
     const client = await getClient();
 
     try {
@@ -135,7 +136,7 @@ export class UserRepository {
       `;
 
       const result = await client.query(query, [id, ...values]);
-      return result.rows.length > 0 ? (result.rows[0] as UserSchema) : null;
+      return result.rows.length > 0 ? (result.rows[0] as User) : null;
     } finally {
       client.release();
     }

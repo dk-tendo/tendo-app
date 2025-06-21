@@ -73,5 +73,10 @@
       }
     }
   },
-  "implicitDependencies": ["database", "lambda-utils", "shared-dto"]
+  "implicitDependencies": [
+    "database",
+    "lambda-utils",
+    "shared-dto",
+    "shared-services"
+  ]
 }

@@ -1,4 +1,10 @@
-import { ApiConfig } from '@tendo-app/shared-dto';
+// apps/frontend/src/config/api.config.ts
+
+interface ApiConfig {
+  baseURL: string;
+  timeout: number;
+  retries: number;
+}
 
 class ConfigService {
   private config: ApiConfig | null = null;
