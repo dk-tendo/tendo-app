@@ -3,7 +3,7 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import { configService } from '../config/api.config';
 import { Route, Routes, Link } from 'react-router-dom';
 import { Home } from '../pages/';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 import '@aws-amplify/ui-react/styles.css';
 
@@ -88,6 +88,12 @@ export function App() {
       <Routes>
         <Route path="/" element={<Home />} />
       </Routes>
+      <Toaster
+        position="bottom-left"
+        toastOptions={{
+          className: 'text-sm max-h-80 overflow-y-auto overflow-wrap-anywhere',
+        }}
+      />
     </Authenticator>
   );
 }

@@ -2,6 +2,7 @@ import { FC, createContext, useContext, useEffect, useState } from 'react';
 import { AuthService } from '@tendo-app/auth';
 import { Amplify } from 'aws-amplify';
 import { AuthUser } from '@aws-amplify/auth';
+import toast from 'react-hot-toast';
 
 const authService = new AuthService();
 
@@ -40,13 +41,18 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({
 
     if (result.success && result.user) {
       setUser(result.user);
+    } else {
+      toast.error(`${result.error}`);
     }
   };
 
   const signOut = async () => {
     const result = await authService.signOut();
+
     if (result.success) {
       setUser(null);
+    } else {
+      toast.error(`${result.error}`);
     }
     return result;
   };

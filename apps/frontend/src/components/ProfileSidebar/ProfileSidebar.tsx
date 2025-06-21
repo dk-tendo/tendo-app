@@ -1,3 +1,11 @@
+import { useAuth } from '../../providers/AuthProvider';
+
 export const ProfileSidebar = () => {
-  return <div>ProfileSidebar</div>;
+  const { signOut } = useAuth();
+
+  return (
+    <div>
+      <button onClick={() => signOut()}>Sign out</button>
+    </div>
+  );
 };
