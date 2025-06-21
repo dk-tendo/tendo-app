@@ -4,7 +4,7 @@ import { AuthenticatedApp } from './AuthenticatedApp';
 import '@aws-amplify/ui-react/styles.css';
 import '../styles.css';
 import { useEffect, useState } from 'react';
-import { configService } from '../config/api.config';
+import { configService } from '@tendo-app/config';
 import toast from 'react-hot-toast';
 
 export function App() {

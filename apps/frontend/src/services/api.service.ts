@@ -1,4 +1,4 @@
-import { configService } from '../config/api.config';
+import { configService } from '@tendo-app/config';
 import { RequestConfig } from '@tendo-app/shared-dto';
 
 export class BaseApiService {

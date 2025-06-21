@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import { Home } from '../pages';
 import { AuthUser } from '@aws-amplify/auth';
 import { useActions } from '@tendo-app/state';
-import { configService } from '../config/api.config';
+import { configService } from '@tendo-app/config';
 import toast from 'react-hot-toast';
 
 interface AuthenticatedAppProps {
@@ -41,28 +41,7 @@ export const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({
   };
 
   const testGetUsers = async () => {
-    try {
-      const apiConfig = configService.getConfig();
-      const response = await fetch(`${apiConfig.baseURL}/users`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        const userCount = result.data?.length || 0;
-        toast.success(`📋 Found ${userCount} users`);
-        console.log('Users:', result);
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP ${response.status}`);
-      }
-    } catch (error) {
-      toast.error(`❌ Failed to get users: ${error.message}`);
-      console.error('Get users error:', error);
-    }
+    actions.getAllUsers();
   };
 
   return (

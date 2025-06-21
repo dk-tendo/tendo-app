@@ -1,4 +1,4 @@
-import apiService from '@tendo-app/shared-services';
+import { configService } from '@tendo-app/config';
 import {
   createAsyncThunk,
   createSlice,
@@ -28,11 +28,24 @@ export const getAllUsers = createAsyncThunk(
   'user/getAllUsers',
   async (_, { rejectWithValue }) => {
     try {
-      // const users = await apiService.users.getUsers();
-      // return users;
+      const apiConfig = configService.getConfig();
+      const response = await fetch(`${apiConfig.baseURL}/users`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const userCount = result.data?.length || 0;
+        console.log('Users:', result.data);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
     } catch (error) {
-      console.error('Error fetching users:', error);
-      return rejectWithValue(error);
+      console.error('Get users error:', error);
     }
   }
 );
@@ -41,6 +54,11 @@ export const userSlice: Slice<UserState> = createSlice({
   name: 'user',
   initialState,
   reducers: {},
+  extraReducers: (builder) => {
+    // builder.addCase(getAllUsers.fulfilled, (state, action) => {
+    //   state.users = action.payload
+    // });
+  },
 });
 
 export const { setUserId, setUserLoading } = userSlice.actions;

@@ -1,5 +1,3 @@
-// apps/frontend/src/config/api.config.ts
-
 interface ApiConfig {
   baseURL: string;
   timeout: number;

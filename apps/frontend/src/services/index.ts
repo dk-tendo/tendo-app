@@ -1,5 +1,5 @@
 import { UserService } from './user.service';
-import { configService } from '../config/api.config';
+import { configService } from '@tendo-app/config';
 
 class ApiService {
   public readonly users: UserService;
