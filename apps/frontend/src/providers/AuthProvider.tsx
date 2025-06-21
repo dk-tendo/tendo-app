@@ -1,10 +1,11 @@
 import { FC, createContext, useContext, useEffect, useState } from 'react';
-import { AuthService } from '@tendo-app/auth';
 import { Amplify } from 'aws-amplify';
-import { AuthUser } from '@aws-amplify/auth';
+import {
+  AuthUser,
+  getCurrentUser,
+  signOut as amplifySignOut,
+} from 'aws-amplify/auth';
 import toast from 'react-hot-toast';
-
-const authService = new AuthService();
 
 const authConfig = {
   Auth: {
@@ -22,43 +23,80 @@ Amplify.configure(authConfig);
 const AuthContext = createContext<{
   user: AuthUser | null;
   signOut: () => Promise<{ success: boolean; error?: unknown }>;
+  authLoading: boolean;
+  isAuthenticated: boolean;
 }>({
   user: null,
-  signOut: authService.signOut,
+  signOut: async () => ({ success: false }),
+  authLoading: false,
+  isAuthenticated: false,
 });
 
 export const AuthProvider: FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     checkAuthState();
   }, []);
 
   const checkAuthState = async () => {
-    const result = await authService.getCurrentUser();
+    setLoading(true);
+    try {
+      console.log('🔍 Checking if user is authenticated...');
 
-    if (result.success && result.user) {
-      setUser(result.user);
-    } else {
-      toast.error(`${result.error}`);
+      const currentUser = await getCurrentUser();
+      console.log(
+        '✅ User is authenticated:',
+        currentUser.signInDetails?.loginId
+      );
+      setUser(currentUser);
+    } catch (error: any) {
+      console.log('ℹ️ User not authenticated:', error.name);
+      setUser(null);
+
+      // Only show error for unexpected errors, not "user not authenticated"
+      if (
+        error.name !== 'UserUnAuthenticatedException' &&
+        error.name !== 'AuthUserPoolException' &&
+        !error.message?.includes('not authenticated')
+      ) {
+        console.error('🐛 Unexpected auth error:', error);
+        toast.error(`Unexpected auth error: ${error.name}`);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
-    const result = await authService.signOut();
-
-    if (result.success) {
+    setLoading(true);
+    try {
+      console.log('🚪 Signing out...');
+      await amplifySignOut();
       setUser(null);
-    } else {
-      toast.error(`${result.error}`);
+      toast.success('Successfully signed out');
+      setLoading(false);
+      return { success: true };
+    } catch (error: any) {
+      console.error('Sign out failed:', error);
+      toast.error(`Sign out failed: ${error.message}`);
+      setLoading(false);
+      return { success: false, error };
     }
-    return result;
   };
 
   return (
-    <AuthContext.Provider value={{ user, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        signOut,
+        authLoading: loading,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -42,6 +42,7 @@ export class AuthService {
   async getCurrentUser() {
     try {
       const user = await getCurrentUser();
+      debugger;
       return { success: true, user };
     } catch (error) {
       return { success: false, error };

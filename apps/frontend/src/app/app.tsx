@@ -3,9 +3,11 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import { configService } from '../config/api.config';
 import { Route, Routes, Link } from 'react-router-dom';
 import { Home } from '../pages/';
-import toast, { Toaster } from 'react-hot-toast';
+import { useAuth } from '../providers/AuthProvider';
+import toast from 'react-hot-toast';
 
 import '@aws-amplify/ui-react/styles.css';
+import { AuthenticatedApp } from './AuthenticatedApp';
 
 export function App() {
   const [message, setMessage] = useState('Initializing...');
@@ -14,6 +16,10 @@ export function App() {
   const [connectionStatus, setConnectionStatus] = useState<
     'connecting' | 'connected' | 'failed'
   >('connecting');
+  const { authLoading, user } = useAuth();
+
+  console.log('authLoading', authLoading);
+  console.log('user', user);
 
   useEffect(() => {
     initializeApp();
@@ -85,15 +91,9 @@ export function App() {
         },
       }}
     >
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
-      <Toaster
-        position="bottom-left"
-        toastOptions={{
-          className: 'text-sm max-h-80 overflow-y-auto overflow-wrap-anywhere',
-        }}
-      />
+      {({ signOut, user }) => (
+        <AuthenticatedApp user={user} signOut={() => signOut?.()} />
+      )}
     </Authenticator>
   );
 }
