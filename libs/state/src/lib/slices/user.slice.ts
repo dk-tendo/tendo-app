@@ -117,7 +117,11 @@ export const userSlice: Slice<UserState> = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    builder.addCase(getUserByEmail.pending, (state) => {
+      state.userLoading = true;
+    });
     builder.addCase(getUserByEmail.fulfilled, (state, action) => {
+      state.userLoading = false;
       const user = action.payload as UserSchema;
       state.userEmail = user.email || null;
       state.userName = `${user.firstName} ${user.lastName}`;
