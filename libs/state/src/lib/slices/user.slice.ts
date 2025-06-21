@@ -1,4 +1,10 @@
-import { createSlice, PayloadAction, Slice } from '@reduxjs/toolkit';
+import apiService from '@tendo-app/shared-services';
+import {
+  createAsyncThunk,
+  createSlice,
+  PayloadAction,
+  Slice,
+} from '@reduxjs/toolkit';
 
 interface UserState {
   userId: string | undefined;
@@ -10,17 +16,18 @@ const initialState: UserState = {
   userLoading: false,
 };
 
+export const getUserByEmail = createAsyncThunk(
+  'user/getUserByEmail',
+  async (email: string) => {
+    const user = await apiService.users.getUserByEmail(email);
+    return user;
+  }
+);
+
 export const userSlice: Slice<UserState> = createSlice({
   name: 'user',
   initialState,
-  reducers: {
-    setUserId: (state, action: PayloadAction<string>) => {
-      state.userId = action.payload;
-    },
-    setUserLoading: (state, action: PayloadAction<boolean>) => {
-      state.userLoading = action.payload;
-    },
-  },
+  reducers: {},
 });
 
 export const { setUserId, setUserLoading } = userSlice.actions;

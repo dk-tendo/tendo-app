@@ -5,5 +5,9 @@
   "type": "module",
   "main": "./index.js",
   "types": "./index.d.ts",
-  "dependencies": {}
+  "dependencies": {
+    "@tendo-app/shared-services": "workspace:*",
+    "react-redux": "^9.1.2",
+    "@reduxjs/toolkit": "^2.4.0"
+  }
 }

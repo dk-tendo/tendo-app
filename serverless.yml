@@ -51,6 +51,20 @@ functions:
             origin: ${self:custom.corsOrigins.${self:provider.stage}}
             allowCredentials: true
 
+  getUserByEmail:
+    handler: apps/api-gateway/src/handlers/users/get-user-by-email.main
+    events:
+      - http:
+          path: users/email/{email}
+          method: get
+          cors:
+            origin: ${self:custom.corsOrigins.${self:provider.stage}}
+            allowCredentials: true
+          request:
+            parameters:
+              paths:
+                email: true
+
   # Fastify APIs
   api:
     handler: apps/api-gateway/src/main.handler

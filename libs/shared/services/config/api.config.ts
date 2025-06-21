@@ -1,8 +1,4 @@
-interface ApiConfig {
-  baseURL: string;
-  timeout: number;
-  retries: number;
-}
+import { ApiConfig } from '@tendo-app/shared-dto';
 
 class ConfigService {
   private config: ApiConfig | null = null;
@@ -16,7 +12,7 @@ class ConfigService {
       return 'http://localhost:3000';
     }
 
-    // Production environment
+    // Production environment - replace with your actual API endpoint
     if (hostname === 'drh3lhlsbyvln.cloudfront.net') {
       return 'https://vwnoutyxti.execute-api.us-east-1.amazonaws.com/prod';
     }
@@ -64,5 +60,6 @@ class ConfigService {
   }
 }
 
+// Export singleton instance
 export const configService = new ConfigService();
 export default configService;

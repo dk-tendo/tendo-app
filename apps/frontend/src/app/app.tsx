@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Authenticator } from '@aws-amplify/ui-react';
-import { configService } from '../config/api.config';
+import apiService from '@tendo-app/shared-services';
 import { Route, Routes, Link } from 'react-router-dom';
 import { Home } from '../pages/';
 import { useAuth } from '../providers/AuthProvider';
@@ -30,13 +30,13 @@ export function App() {
       setMessage('🔧 Loading configuration...');
 
       // Get the configuration
-      const config = configService.getConfig();
+      const config = apiService.getCurrentConfig();
       setApiConfig(config);
 
       setMessage('📡 Testing API connection...');
 
       // Test if API is reachable
-      const isConnected = await configService.testConnection();
+      const isConnected = await apiService.testConnection();
 
       if (isConnected) {
         setMessage('✅ Connected to API successfully!');
