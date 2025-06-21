@@ -36,10 +36,6 @@ export const AuthenticatedApp: React.FC<AuthenticatedAppProps> = ({
     }
   }, [user?.email, user?.given_name, user?.family_name]);
 
-  const testGetUsers = async () => {
-    actions.getAllUsers();
-  };
-
   return (
     <div>
       <Routes>
