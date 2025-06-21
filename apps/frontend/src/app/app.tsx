@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Authenticator } from '@aws-amplify/ui-react';
 import { configService } from '../config/api.config';
+import { Route, Routes, Link } from 'react-router-dom';
+import { Home } from '../pages/';
 import toast from 'react-hot-toast';
-// import { Route, Routes, Link } from 'react-router-dom';
+
 import '@aws-amplify/ui-react/styles.css';
 
 export function App() {
@@ -83,26 +85,9 @@ export function App() {
         },
       }}
     >
-      {({ signOut, user }) => (
-        <main className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1>Welcome {user?.signInDetails?.loginId}</h1>
-            <button
-              onClick={signOut}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            >
-              Sign out
-            </button>
-          </div>
-          <div>
-            <p>{message}</p>
-            <p>API Config: {JSON.stringify(apiConfig)}</p>
-            <p>Connection Status: {connectionStatus}</p>
-            <p>Loading: {loading ? 'Yes' : 'No'}</p>
-            This is a test
-          </div>
-        </main>
-      )}
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
     </Authenticator>
   );
 }
