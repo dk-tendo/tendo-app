@@ -2,6 +2,7 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import { AuthenticatedApp } from './AuthenticatedApp';
 
 import '@aws-amplify/ui-react/styles.css';
+import '../styles.css';
 
 export function App() {
   return (
