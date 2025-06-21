@@ -6,7 +6,6 @@ import {
   PayloadAction,
   Slice,
 } from '@reduxjs/toolkit';
-import { v4 as uuidv4 } from 'uuid';
 
 interface UserState {
   userEmail: string | null;
@@ -76,7 +75,7 @@ export const createUser = createAsyncThunk(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ...user, id: uuidv4() }),
+      body: JSON.stringify(user),
     });
     const result = (await response.json()) as ApiResponse;
 
@@ -127,6 +126,9 @@ export const userSlice: Slice<UserState> = createSlice({
     builder.addCase(getUserByEmail.fulfilled, (state, action) => {
       state.userLoading = false;
       const user = action.payload as User;
+
+      if (!user) return;
+
       state.userEmail = user.email || null;
       state.userName = `${user.firstName} ${user.lastName}`;
       state.userRole = user.role || null;

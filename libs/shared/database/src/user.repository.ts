@@ -5,7 +5,6 @@ import {
   TableGenerator,
   QueryBuilder,
 } from '@tendo-app/shared-dto';
-const crypto = require('crypto');
 
 export class UserRepository {
   // Create the users table if it doesn't exist
@@ -31,7 +30,7 @@ export class UserRepository {
     try {
       // Add auto-generated fields
       const dataWithDefaults = {
-        id: crypto.randomUUID(),
+        id: userData.id,
         first_name: userData.firstName,
         last_name: userData.lastName,
         email: userData.email,

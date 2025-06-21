@@ -4,6 +4,7 @@ import {
   User,
 } from '@tendo-app/shared-dto';
 import { UserRepository } from '@tendo-app/shared-database';
+import { v4 as uuidv4 } from 'uuid';
 
 export class UserService {
   static validateCreateUserRequest(data: User): {
@@ -71,12 +72,13 @@ export class UserService {
 
       // Create user
       const user = await UserRepository.create({
+        id: uuidv4(),
         firstName: userData.firstName?.trim(),
         lastName: userData.lastName?.trim(),
         email: userData.email?.toLowerCase().trim(),
         role: userData.role || 'patient',
         patientIds: userData.patientIds || [],
-        clinicId: userData.clinicId || '',
+        clinicId: userData.clinicId,
         incompleteTaskIds: userData.incompleteTaskIds || [],
         completedTaskIds: userData.completedTaskIds || [],
       });
